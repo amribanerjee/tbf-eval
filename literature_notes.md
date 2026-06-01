@@ -3,8 +3,8 @@ True Authors: Carlos E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin 
 
 The Technical Reality: Introduces a testbed of 2,294 engineering problems from 12 open-source Python repositories (e.g., scikit-learn, matplotlib, sympy). Evaluation relies entirely on applying an LLM-generated patch file to a repository environment and executing its unit test suite to yield a binary $1$ (Resolved) or $0$ (Unresolved).
 
-Your Citation Justification: This serves as the primary evaluation standard and source dataset for your agent trajectories. You cite it to anchor the current paradigm of automated, execution-based evaluation, paving the way for your argument that while outcome validation is objective, it hides structural flaws in the trajectory itself.
-------------------------------------------------------------------------------------------------------------------------------------------
+**Your Citation Justification: This serves as the primary evaluation standard and source dataset for your agent trajectories. You cite it to anchor the current paradigm of automated, execution-based evaluation, paving the way for your argument that while outcome validation is objective, it hides structural flaws in the trajectory itself.
+**------------------------------------------------------------------------------------------------------------------------------------------
 2. arxiv:2405.15793 | SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering
 True Authors: John Yang, Carlos E. Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik Narasimhan, Ofir Press (Princeton NLP).
 
