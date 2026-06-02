@@ -1,37 +1,45 @@
 import pandas as pd
 import json
-import glob
+import os
+from datasets import load_dataset
 
-def batch_process_to_dataframe(data_dir='tbf/data'):
-    json_files = glob.glob(f"{data_dir}/**/*.json", recursive=True)
+def batch_process_to_dataframe():
+    dataset = load_dataset("SWE-bench/SWE-smith-trajectories", split="tool")
     compiled_records = []
     
-    for file_path in json_files:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-            if isinstance(data, dict) and 'instances' in data:
-                data = data['instances']
-                
-            for traj in data:
-                instance_id = traj.get('instance_id', '')
-                agent_system = traj.get('model', '')
-                
-                success_status = traj.get('success', traj.get('resolved', False))
-                binary_outcome = 1 if success_status in [True, 'True', 1, 'success'] else 0
-                
-                history = traj.get('history', [])
-                action_sequence = [step.get('action', '') for step in history if isinstance(step, dict)]
-                
-                compiled_records.append({
-                    'instance_id': instance_id,
-                    'agent_system': agent_system,
-                    'total_steps': len(action_sequence),
-                    'resolved': binary_outcome,
-                    'raw_trajectory_sequence': json.dumps(action_sequence)
-                })
-                
+    os.makedirs("tbf/data", exist_ok=True)
+    
+    for traj in dataset:
+        instance_id = traj.get("instance_id", "")
+        agent_system = traj.get("model", "")
+        
+        success_status = traj.get("resolved", False)
+        binary_outcome = 1 if success_status in [True, "True", 1] else 0
+        
+        messages_field = traj.get("messages", "")
+        action_sequence = []
+        
+        try:
+            messages = json.loads(messages_field) if isinstance(messages_field, str) else messages_field
+            if isinstance(messages, list):
+                for msg in messages:
+                    if isinstance(msg, dict) and msg.get("message_type") == "action":
+                        content = msg.get("content", "")
+                        if content:
+                            action_sequence.append(content)
+        except Exception:
+            pass
+                    
+        compiled_records.append({
+            "instance_id": instance_id,
+            "agent_system": agent_system,
+            "total_steps": len(action_sequence),
+            "resolved": binary_outcome,
+            "raw_trajectory_sequence": json.dumps(action_sequence)
+        })
+        
     df = pd.DataFrame(compiled_records)
-    output_path = 'tbf/data/raw_behavioral_dataframe.csv'
+    output_path = "tbf/data/raw_behavioral_dataframe.csv"
     df.to_csv(output_path, index=False)
     
     print(f"Processed {len(df)} trajectories.")
