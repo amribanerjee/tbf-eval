@@ -1,30 +1,36 @@
 import json
-import glob
+from datasets import load_dataset
 
-def manual_trajectory_inspector(data_dir='tbf/data', num_to_test=10):
-    json_files = glob.glob(f"{data_dir}/**/*.json", recursive=True)
-    all_extracted_trajectories = []
+def manual_trajectory_inspector(num_to_test=10):
+    dataset = load_dataset("SWE-bench/SWE-smith-trajectories", split="tool")
     
-    for file_path in json_files:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-            if isinstance(data, dict) and 'instances' in data:
-                data = data['instances']
-            all_extracted_trajectories.extend(data)
-            
-    print(f"Total historical traces loaded across systems: {len(all_extracted_trajectories)}")
+    print(f"Total historical traces loaded: {len(dataset)}")
     print(f"Inspecting the first {num_to_test} action sequences manually:\n" + "="*60)
     
-    for idx, traj in enumerate(all_extracted_trajectories[:num_to_test]):
-        instance_id = traj.get('instance_id', f'unknown_id_{idx}')
-        agent_system = traj.get('model', 'unknown_agent')
-        history = traj.get('history', [])
+    for idx in range(min(num_to_test, len(dataset))):
+        traj = dataset[idx]
+        instance_id = traj.get("instance_id", f"unknown_id_{idx}")
+        agent_system = traj.get("model", "unknown_model")
         
-        action_sequence = [step.get('action', '').strip() for step in history if isinstance(step, dict)]
+        messages_field = traj.get("messages", "")
+        action_sequence = []
         
+        try:
+            messages = json.loads(messages_field) if isinstance(messages_field, str) else messages_field
+            if isinstance(messages, list):
+                for msg in messages:
+                    if isinstance(msg, dict) and msg.get("message_type") == "action":
+                        content = msg.get("content", "").strip()
+                        if content:
+                            action_sequence.append(content)
+        except Exception:
+            pass
+                    
         print(f"\n[{idx + 1}] Target Patch: {instance_id} | Core Model: {agent_system}")
         print(f"    Total Sequential Turns: {len(action_sequence)}")
-        print(f"    Raw Action Order: {action_sequence}")
+        print(f"    Raw Action Order: {action_sequence[:3]}")
+        if len(action_sequence) > 3:
+            print("    ...")
 
 if __name__ == "__main__":
     manual_trajectory_inspector()
