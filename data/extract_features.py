@@ -39,16 +39,24 @@ def extract_features(raw_trajectory_str):
     test_patterns = [r'test', r'pytest', r'run', r'execute']
     
     searches, views, edits, tests = 0, 0, 0, 0
+    action_categories = []
+    
     for a in actions:
         a_low = a.lower()
+        category = 'other'
         if any(re.search(p, a_low) for p in search_patterns):
             searches += 1
+            category = 'search'
         if any(re.search(p, a_low) for p in view_patterns):
             views += 1
+            category = 'view'
         if any(re.search(p, a_low) for p in edit_patterns):
             edits += 1
+            category = 'edit'
         if any(re.search(p, a_low) for p in test_patterns):
             tests += 1
+            category = 'test'
+        action_categories.append(category)
             
     features['file_search_count'] = searches
     features['file_view_count'] = views
@@ -75,7 +83,11 @@ def extract_features(raw_trajectory_str):
     errors = sum(1 for a in actions if any(re.search(p, a.lower()) for p in error_patterns))
     features['error_flag_count'] = errors
     
-    features['step_velocity'] = float(total_actions / 1.0) 
+    transitions = 0
+    for i in range(1, len(action_categories)):
+        if action_categories[i] != action_categories[i-1]:
+            transitions += 1
+    features['step_velocity'] = float(transitions / total_actions)
     
     return features
 
