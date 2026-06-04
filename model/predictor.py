@@ -6,8 +6,7 @@ import pandas as pd
 import xgboost as xgb
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import SelectKBest, chi2
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import classification_report, roc_auc_score
 from sklearn.model_selection import StratifiedKFold
@@ -31,32 +30,35 @@ def _safe_parse_trajectory(raw_json: str) -> list:
 def extract_trajectory_features(raw_json: str) -> dict:
     steps = _safe_parse_trajectory(raw_json)
     n_steps = len(steps)
-
+    
     if n_steps == 0:
         return {
             "full_text": "",
+            "mid_trajectory_text": "",
             "terminal_step_text": "",
             "meta_sequence_depth": 0.0,
             "meta_step_imbalance": 0.0,
             "trajectory_velocity": 0.0,
             "terminal_density_ratio": 0.0
         }
-
+    
     full_text = " ".join(steps)
     terminal_step_text = steps[-1]
-
+    mid_trajectory_text = " ".join(steps[:-1]) if n_steps > 1 else steps[0]
+    
     step_lengths = [len(s.split()) for s in steps]
     mean_len = np.mean(step_lengths) if step_lengths else 1.0
     max_len = np.max(step_lengths) if step_lengths else 1.0
-
+    
     velocity = 0.0
     if n_steps > 1:
         velocity = float(np.mean(np.diff(step_lengths)))
-
+        
     density_ratio = float(step_lengths[-1] / mean_len if mean_len > 0 else 0.0)
-
+    
     return {
         "full_text": full_text,
+        "mid_trajectory_text": mid_trajectory_text,
         "terminal_step_text": terminal_step_text,
         "meta_sequence_depth": float(math.log1p(n_steps)),
         "meta_step_imbalance": float(max_len / mean_len if mean_len > 0 else 0.0),
@@ -92,25 +94,22 @@ def run_pipeline():
     pos_support = int((y == 1).sum())
     spw = neg_support / pos_support
 
-    print(f"Trajectory column detected  : {trajectory_col}")
-    print(f"Label column detected       : {label_col}")
-    print(f"Dataset shape               : {df.shape}")
-    print()
-
-    print("Extracting multi-domain trajectory metrics...")
+    print(f"Dataset shape: {df.shape}")
+    print("Extracting multi-domain features and building multi-tier text spaces...")
+    
     records = [extract_trajectory_features(raw) for raw in df[trajectory_col]]
     df_features = pd.DataFrame(records)
-
-    print("Fitting global text vector space (broad-spectrum n-grams) ...")
-    tfidf_full = TfidfVectorizer(max_features=65000, ngram_range=(1, 4), stop_words="english", sublinear_tf=True)
+    
+    tfidf_full = TfidfVectorizer(max_features=55000, ngram_range=(1, 3), stop_words="english", sublinear_tf=True)
     X_tfidf_full = tfidf_full.fit_transform(df_features["full_text"].astype(str))
-
-    print("Fitting terminal step text vector space (dense char n-grams) ...")
+    
+    tfidf_mid = TfidfVectorizer(max_features=25000, ngram_range=(1, 2), stop_words="english", sublinear_tf=True)
+    X_tfidf_mid = tfidf_mid.fit_transform(df_features["mid_trajectory_text"].astype(str))
+    
     tfidf_term = TfidfVectorizer(max_features=25000, analyzer="char", ngram_range=(3, 5), sublinear_tf=True)
     X_tfidf_term = tfidf_term.fit_transform(df_features["terminal_step_text"].astype(str))
-
-    print("Extracting selective Chi-Square n-grams across full trajectory spectrum ...")
-    chi2_selector = SelectKBest(chi2, k=128)
+    
+    chi2_selector = SelectKBest(chi2, k=80)
     X_chi2_sparse = chi2_selector.fit_transform(X_tfidf_full, y)
     chi2_indices = chi2_selector.get_support(indices=True)
     full_feature_names = tfidf_full.get_feature_names_out()
@@ -118,45 +117,53 @@ def run_pipeline():
     df_chi2 = pd.DataFrame(X_chi2_sparse.toarray(), columns=chi2_cols)
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-
-    print("Generating out-of-fold stacked predictions for multi-tier text modeling layers ...")
+    
     oof_full_proba = np.zeros(len(y))
+    oof_mid_proba = np.zeros(len(y))
     oof_term_proba = np.zeros(len(y))
-
+    
+    print("Generating non-linear tiered neural meta-features...")
     for train_idx, val_idx in skf.split(X_tfidf_full, y):
-        text_clf_full = LogisticRegression(C=0.60, class_weight="balanced", random_state=42, max_iter=300)
-        text_clf_full.fit(X_tfidf_full[train_idx], y[train_idx])
-        oof_full_proba[val_idx] = text_clf_full.predict_proba(X_tfidf_full[val_idx])[:, 1]
-
-        text_clf_term = LogisticRegression(C=0.50, class_weight="balanced", random_state=42, max_iter=300)
-        text_clf_term.fit(X_tfidf_term[train_idx], y[train_idx])
-        oof_term_proba[val_idx] = text_clf_term.predict_proba(X_tfidf_term[val_idx])[:, 1]
-
-    df_text_meta = pd.DataFrame({
-        "global_text_stack_proba": oof_full_proba,
-        "terminal_step_semantic_anchor": oof_term_proba
+        mlp_full = MLPClassifier(hidden_layer_sizes=(64, 16), activation="relu", early_stopping=True, alpha=0.02, random_state=42, max_iter=25)
+        mlp_full.fit(X_tfidf_full[train_idx], y[train_idx])
+        oof_full_proba[val_idx] = mlp_full.predict_proba(X_tfidf_full[val_idx])[:, 1]
+        
+        mlp_mid = MLPClassifier(hidden_layer_sizes=(32, 8), activation="relu", early_stopping=True, alpha=0.02, random_state=42, max_iter=25)
+        mlp_mid.fit(X_tfidf_mid[train_idx], y[train_idx])
+        oof_mid_proba[val_idx] = mlp_mid.predict_proba(X_tfidf_mid[val_idx])[:, 1]
+        
+        mlp_term = MLPClassifier(hidden_layer_sizes=(32, 8), activation="relu", early_stopping=True, alpha=0.02, random_state=42, max_iter=25)
+        mlp_term.fit(X_tfidf_term[train_idx], y[train_idx])
+        oof_term_proba[val_idx] = mlp_term.predict_proba(X_tfidf_term[val_idx])[:, 1]
+        
+    X_final_df = pd.DataFrame({
+        "meta_sequence_depth": df_features["meta_sequence_depth"],
+        "meta_step_imbalance": df_features["meta_step_imbalance"],
+        "trajectory_velocity": df_features["trajectory_velocity"],
+        "terminal_density_ratio": df_features["terminal_density_ratio"],
+        "neural_full_text_proba": oof_full_proba,
+        "neural_mid_text_proba": oof_mid_proba,
+        "neural_terminal_text_proba": oof_term_proba
     })
-
-    X_text_domain = pd.concat([df_text_meta, df_chi2], axis=1)
-    text_feature_names = X_text_domain.columns.tolist()
-    X_text_arr = X_text_domain.values
-
-    X_structural_arr = df_features[["meta_sequence_depth", "meta_step_imbalance", "trajectory_velocity", "terminal_density_ratio"]].values
-
+    
+    X_final_df = pd.concat([X_final_df, df_chi2], axis=1)
+    feature_names = X_final_df.columns.tolist()
+    X_arr = X_final_df.values
+    
     fold_aucs = []
     oof_proba = np.zeros(len(y))
-    importances_accumulator = np.zeros(len(text_feature_names))
+    importances_accumulator = np.zeros(len(feature_names))
 
-    xgb_text_params = dict(
+    xgb_params = dict(
         n_estimators=2200,
-        learning_rate=0.005,
-        max_depth=6,
-        subsample=0.85,
-        colsample_bytree=0.7,
-        min_child_weight=12,
-        gamma=0.6,
-        reg_alpha=1.5,
-        reg_lambda=8.0,
+        learning_rate=0.006,
+        max_depth=5,
+        subsample=0.75,
+        colsample_bytree=0.60,
+        min_child_weight=20,
+        gamma=1.2,
+        reg_alpha=4.0,
+        reg_lambda=15.0,
         scale_pos_weight=spw,
         objective="binary:logistic",
         eval_metric="auc",
@@ -164,79 +171,31 @@ def run_pipeline():
         n_jobs=-1,
     )
 
-    rf_text_params = dict(
-        n_estimators=800,
-        max_depth=14,
-        min_samples_split=14,
-        min_samples_leaf=7,
-        max_features="sqrt",
-        class_weight="balanced",
-        random_state=42,
-        n_jobs=-1
-    )
-
-    xgb_struct_params = dict(
-        n_estimators=1000,
-        learning_rate=0.01,
-        max_depth=4,
-        subsample=0.8,
-        colsample_bytree=0.9,
-        scale_pos_weight=spw,
-        objective="binary:logistic",
-        eval_metric="auc",
-        random_state=42,
-        n_jobs=-1
-    )
-
-    print("Executing parallel track domain training and meta-blending...")
-    for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_text_arr, y), start=1):
-        X_text_train, X_text_val = X_text_arr[train_idx], X_text_arr[val_idx]
-        X_struct_train, X_struct_val = X_structural_arr[train_idx], X_structural_arr[val_idx]
+    print("Running integrated gradient booster cross-validation...")
+    for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_arr, y), start=1):
+        X_train, X_val = X_arr[train_idx], X_arr[val_idx]
         y_train, y_val = y[train_idx], y[val_idx]
 
-        clf_xgb_text = xgb.XGBClassifier(**xgb_text_params)
-        clf_xgb_text.fit(X_text_train, y_train, eval_set=[(X_text_val, y_val)], verbose=False)
-        p_val_xgb_text = clf_xgb_text.predict_proba(X_text_val)[:, 1]
-        importances_accumulator += clf_xgb_text.feature_importances_
-
-        clf_rf_text = RandomForestClassifier(**rf_text_params)
-        clf_rf_text.fit(X_text_train, y_train)
-        p_val_rf_text = clf_rf_text.predict_proba(X_text_val)[:, 1]
-
-        clf_xgb_struct = xgb.XGBClassifier(**xgb_struct_params)
-        clf_xgb_struct.fit(X_struct_train, y_train, eval_set=[(X_struct_val, y_val)], verbose=False)
-        p_val_xgb_struct = clf_xgb_struct.predict_proba(X_struct_val)[:, 1]
-
-        p_xgb_text_cal = np.power(p_val_xgb_text, 1.05)
-        p_rf_text_cal = np.power(p_val_rf_text, 0.95)
-        p_text_blend = (0.58 * p_xgb_text_cal) + (0.42 * p_rf_text_cal)
-
-        p_val_blend = (0.78 * p_text_blend) + (0.22 * p_val_xgb_struct)
-
-        p_tr_xgb_text = clf_xgb_text.predict_proba(X_text_train)[:, 1]
-        p_tr_rf_text = clf_rf_text.predict_proba(X_text_train)[:, 1]
-        p_tr_struct = clf_xgb_struct.predict_proba(X_struct_train)[:, 1]
-
-        p_tr_text_blend = (0.58 * np.power(p_tr_xgb_text, 1.05)) + (0.42 * np.power(p_tr_rf_text, 0.95))
-        p_tr_blend = (0.78 * p_tr_text_blend) + (0.22 * p_tr_struct)
-
+        clf_xgb = xgb.XGBClassifier(**xgb_params)
+        clf_xgb.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+        
+        p_val = clf_xgb.predict_proba(X_val)[:, 1]
+        p_train = clf_xgb.predict_proba(X_train)[:, 1]
+        importances_accumulator += clf_xgb.feature_importances_
+        
         iso = IsotonicRegression(out_of_bounds="clip")
-        iso.fit(p_tr_blend, y_train)
-        proba_val = iso.predict(p_val_blend)
-
+        iso.fit(p_train, y_train)
+        
+        proba_val = iso.predict(p_val)
         oof_proba[val_idx] = proba_val
+        
         fold_auc = roc_auc_score(y_val, proba_val)
         fold_aucs.append(fold_auc)
-
         print(f"  Fold {fold_idx}  |  Validation ROC-AUC: {fold_auc:.4f}")
 
     mean_auc = np.mean(fold_aucs)
-    std_auc = np.std(fold_aucs)
-
-    print()
-    print(f"Mean ROC-AUC (5-Fold)       : {mean_auc:.4f}  (+/- {std_auc:.4f})")
-    print()
-
+    print(f"\nMean ROC-AUC (5-Fold): {mean_auc:.4f} (+/- {np.std(fold_aucs):.4f})")
+    
     best_thresh = 0.5
     best_f1 = 0.0
     for thresh in np.linspace(0.3, 0.7, 41):
@@ -247,37 +206,14 @@ def run_pipeline():
             best_f1 = f1_macro
             best_thresh = thresh
 
-    oof_preds = (oof_proba >= best_thresh).astype(int)
-    print(f"Optimized Decision Threshold: {best_thresh:.3f}")
-    print()
-    print("Out-of-Fold Classification Report")
+    print(f"Optimized Threshold: {best_thresh:.3f}\n")
+    print(classification_report(y, (oof_proba >= best_thresh).astype(int), target_names=["failure (0)", "success (1)"], digits=4))
+    
+    importance_series = pd.Series(importances_accumulator / 5.0, index=feature_names).sort_values(ascending=False)
+    print("Top Feature Importances")
     print("-" * 52)
-    print(
-        classification_report(
-            y,
-            oof_preds,
-            target_names=["failure (0)", "success (1)"],
-            digits=4,
-        )
-    )
-
-    avg_importances = importances_accumulator / 5.0
-    importance_series = pd.Series(avg_importances, index=text_feature_names).sort_values(
-        ascending=False
-    )
-
-    print("Top Core Text-Track Feature Importances (descending)")
-    print("-" * 52)
-    for feat, score in importance_series.head(20).items():
-        print(f"  {feat:<40s}  {score:.6f}")
-    print()
-
-    if mean_auc < 0.65:
-        print("WARNING: Mean ROC-AUC is below 0.65.")
-    elif mean_auc > 0.95:
-        print("WARNING: Mean ROC-AUC exceeds 0.95. Check for data leakage.")
-    else:
-        print(f"SUCCESS: Model performance is optimal (Mean AUC = {mean_auc:.4f}).")
+    for feat, score in importance_series.head(15).items():
+        print(f"  {feat:<35s}  {score:.6f}")
 
 if __name__ == "__main__":
     run_pipeline()
