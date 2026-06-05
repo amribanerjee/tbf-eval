@@ -17,7 +17,7 @@ tbf-eval is a framework for evaluating autonomous AI agents on SWE-bench by mapp
 ## Repository Structure
 
 - `tbf/data/` — Raw SWE-bench/SWE-agent trajectory JSON files
-- `tbf/model/` — Trained LightBGM predictive models and SHAP explainer objects
+- `tbf/model/` — Trained LightGBM predictive models and SHAP explainer objects
 - `tbf/metrics/` — Behavioral consistency metric and clustering algorithm scripts
 - `tbf/experiments/` — Evaluation code across agent systems and difficulty tiers
 - `tbf/figures/` — Generated plots, UMAP clusters, and SHAP distribution charts
