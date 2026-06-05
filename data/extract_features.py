@@ -59,12 +59,12 @@ def extract_features(raw_trajectory_str):
     for m in messages:
         m_low = str(m).lower()
         category = 'other'
-        
+
         is_edit = any(re.search(p, m_low) for p in edit_patterns)
         is_test = any(re.search(p, m_low) for p in test_patterns)
         is_view = any(re.search(p, m_low) for p in view_patterns)
         is_search = any(re.search(p, m_low) for p in search_patterns)
-        
+
         if is_edit:
             edits += 1
             category = 'edit'
@@ -77,7 +77,7 @@ def extract_features(raw_trajectory_str):
         elif is_search:
             searches += 1
             category = 'search'
-            
+
         action_categories.append(category)
 
     features['file_search_count'] = float(searches / total_messages)
