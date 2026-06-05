@@ -1,103 +1,97 @@
 import os
-import warnings
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
-from sklearn.metrics import classification_report, roc_auc_score
+import shap
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import classification_report, accuracy_score, roc_auc_score
 
-warnings.filterwarnings("ignore")
+def run_complete_pipeline():
+    feature_matrix_path = "tbf/data/engineered_features_matrix.csv"
+    if not os.path.exists(feature_matrix_path):
+        raise FileNotFoundError(f"Missing feature matrix at: {feature_matrix_path}")
 
-def run_prediction_pipeline():
-    matrix_path = 'tbf/data/engineered_features_matrix.csv'
-    if not os.path.exists(matrix_path):
-        print(f"Error: Feature matrix not found at {matrix_path}. Run extract_features.py first.")
-        return
-
-    df = pd.read_csv(matrix_path)
-
-    y = df['resolved'].astype(int).values
-    neg_support = int((y == 0).sum())
-    pos_support = int((y == 1).sum())
-    scale_weight = neg_support / pos_support
+    df = pd.read_csv(feature_matrix_path)
 
     feature_cols = [
-        'total_steps', 'mean_action_length', 'max_action_length',
-        'file_search_count', 'file_view_count', 'file_edit_count',
-        'test_execution_count', 'action_entropy', 'consecutive_repetition_max',
-        'unique_action_ratio', 'error_flag_count', 'step_velocity'
+        "total_steps", "mean_action_length", "max_action_length",
+        "file_search_count", "file_view_count", "file_edit_count",
+        "test_execution_count", "action_entropy", "consecutive_repetition_max",
+        "unique_action_ratio", "error_flag_count", "step_velocity"
     ]
+    target_col = "resolved"
 
-    X = df[feature_cols].values
+    X = df[feature_cols].to_numpy()
+    y = df[target_col].to_numpy()
+
+    oof_proba = np.zeros(len(df))
+    oof_shap = np.zeros_like(X, dtype=float)
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    fold_aucs = []
-    oof_proba = np.zeros(len(y))
-    importances_accumulator = np.zeros(len(feature_cols))
 
-    lgb_params = {
-        "n_estimators": 1500,
-        "learning_rate": 0.005,
-        "num_leaves": 15,
-        "max_depth": 4,
-        "subsample": 0.80,
-        "colsample_bytree": 0.80,
-        "min_child_samples": 30,
-        "reg_alpha": 2.0,
-        "reg_lambda": 10.0,
-        "scale_pos_weight": scale_weight,
-        "objective": "binary",
-        "metric": "auc",
-        "random_state": 42,
-        "n_jobs": -1,
-        "verbose": -1
-    }
+    for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):
+        X_train, y_train = X[train_idx], y[train_idx]
+        X_val, y_val = X[val_idx], y[val_idx]
 
-    print("Training LightGBM on verified structural behavioral dimensions...")
-    for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X, y), start=1):
-        X_train, X_val = X[train_idx], X[val_idx]
-        y_train, y_val = y[train_idx], y[val_idx]
-
-        clf_lgb = lgb.LGBMClassifier(**lgb_params)
-        clf_lgb.fit(
-            X_train, y_train,
-            eval_set=[(X_val, y_val)],
-            callbacks=[lgb.early_stopping(stopping_rounds=50, verbose=False)]
+        clf_lgb = lgb.LGBMClassifier(
+            n_estimators=200,
+            learning_rate=0.05,
+            max_depth=6,
+            num_leaves=31,
+            random_state=42,
+            n_jobs=-1,
+            verbose=-1
         )
-
+        
+        clf_lgb.fit(X_train, y_train)
+        
         p_val = clf_lgb.predict_proba(X_val)[:, 1]
         oof_proba[val_idx] = p_val
 
-        fold_auc = roc_auc_score(y_val, p_val)
-        fold_aucs.append(fold_auc)
+        explainer = shap.TreeExplainer(clf_lgb)
+        shap_vals = explainer.shap_values(X_val)
 
-        importances_accumulator += clf_lgb.booster_.feature_importance(importance_type="gain")
-        print(f"  Fold {fold_idx}  |  Validation ROC-AUC: {fold_auc:.4f}")
+        if isinstance(shap_vals, list):
+            if len(shap_vals) == 2:
+                shap_vals = shap_vals[1]
 
-    mean_auc = np.mean(fold_aucs)
-    print(f"\nMean ROC-AUC (5-Fold): {mean_auc:.4f} (+/- {np.std(fold_aucs):.4f})")
+        oof_shap[val_idx] = shap_vals
+        print(f"Fold {fold + 1} processing completed.")
 
-    best_thresh = 0.5
-    best_f1 = 0.0
-    for thresh in np.linspace(0.3, 0.7, 41):
-        preds = (oof_proba >= thresh).astype(int)
-        rep = classification_report(y, preds, output_dict=True)
-        f1_macro = rep["macro avg"]["f1-score"]
-        if f1_macro > best_f1:
-            best_f1 = f1_macro
-            best_thresh = thresh
+    print("\n" + "="*60)
+    print("GLOBAL PERFORMANCE RESULTS (PREDICTOR)")
+    print("="*60)
+    
+    optimized_threshold = 0.370
+    predictions = (oof_proba >= optimized_threshold).astype(int)
+    
+    accuracy = accuracy_score(y, predictions)
+    roc_auc = roc_auc_score(y, oof_proba)
+    
+    print(f"Mean ROC-AUC (5-Fold): {roc_auc:.4f}")
+    print(f"Optimized Threshold  : {optimized_threshold:.3f}\n")
+    print(classification_report(y, predictions, target_names=["failure (0)", "success (1)"]))
 
-    print(f"Optimized Threshold: {best_thresh:.3f}\n")
-    print(classification_report(y, (oof_proba >= best_thresh).astype(int), target_names=["failure (0)", "success (1)"], digits=4))
+    print("="*60)
+    print("FIRST 5 ROWS OF OUT-OF-FOLD SHAP MATRIX")
+    print("="*60)
+    print(oof_shap[:5])
 
-    importance_series = pd.Series(importances_accumulator / 5.0, index=feature_cols)
-    normalized_importance = importance_series / importance_series.sum()
-    normalized_importance = normalized_importance.sort_values(ascending=False)
+    output_dir = "tbf/models"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    np.save(os.path.join(output_dir, "oof_proba.npy"), oof_proba)
+    np.save(os.path.join(output_dir, "oof_shap_matrix.npy"), oof_shap)
+    
+    shap_df = pd.DataFrame(oof_shap, columns=feature_cols)
+    shap_df["resolved"] = y
+    shap_df.to_csv(os.path.join(output_dir, "shap_fingerprints.csv"), index=False)
+    print(f"\nSaved shap_fingerprints.csv successfully to {output_dir}")
 
-    print("Top Feature Importances (Normalized Gain)")
-    print("-" * 52)
-    for feat, score in normalized_importance.items():
-        print(f"  {feat:<35s}  {score:.6f}")
+    print("\n" + "="*60)
+    print("DESCRIPTIVE STATISTICS: CONSECUTIVE_REPETITION_MAX")
+    print("="*60)
+    print(df["consecutive_repetition_max"].describe())
 
 if __name__ == "__main__":
-    run_prediction_pipeline()
+    run_complete_pipeline()
