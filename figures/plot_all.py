@@ -29,10 +29,10 @@ def generate_distribution_plots():
 
     for idx, col in enumerate(feature_names):
         ax = axes[idx]
-        
+
         unique_vals = df[col].dropna().unique()
         should_use_kde = len(unique_vals) > 1 and np.std(df[col].dropna()) > 1e-6
-        
+
         sns.histplot(
             data=df,
             x=col,
@@ -52,7 +52,7 @@ def generate_distribution_plots():
         fig.delaxes(axes[j])
 
     plt.tight_layout()
-    figures_dir = 'figures'
+    figures_dir = 'tbf/figures'
     os.makedirs(figures_dir, exist_ok=True)
     output_plot_path = os.path.join(figures_dir, 'feature_histograms.png')
     plt.savefig(output_plot_path, dpi=150)
