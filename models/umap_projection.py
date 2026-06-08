@@ -47,7 +47,7 @@ def run_umap_pipeline():
     plt.ylabel("UMAP Dimension 2")
     plt.grid(True, linestyle="--", alpha=0.3)
     
-    plot_output_path = "tbf/models/umap_cluster_plot.png"
+    plot_output_path = "figures/umap_cluster_plot.png"
     plt.savefig(plot_output_path, bbox_inches="tight")
     plt.close()
 
