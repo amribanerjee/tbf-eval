@@ -1,6 +1,6 @@
 import os
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import umap
 
@@ -47,7 +47,11 @@ def run_umap_pipeline():
     plt.ylabel("UMAP Dimension 2")
     plt.grid(True, linestyle="--", alpha=0.3)
     
-    plot_output_path = "figures/umap_cluster_plot.png"
+    plot_output_dir = "figures"
+    if not os.path.exists(plot_output_dir):
+        os.makedirs(plot_output_dir)
+        
+    plot_output_path = os.path.join(plot_output_dir, "umap_cluster_plot.png")
     plt.savefig(plot_output_path, bbox_inches="tight")
     plt.close()
 
