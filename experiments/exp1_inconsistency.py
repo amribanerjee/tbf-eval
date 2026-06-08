@@ -1,3 +1,4 @@
+%matplotlib inline
 import os
 import pandas as pd
 import numpy as np
@@ -58,28 +59,27 @@ def run_day_8_analysis():
     print("STATISTICAL CORRELATION COEFFICIENTS")
     print("============================================================")
     print(f"Success Rate vs. BCM    | Pearson r: {p_corr_bcm:.4f} | Spearman rho: {s_corr_bcm:.4f}")
-    print(f"Success Variance vs. BCM | Pearson r: {p_corr_var:.4f}")
+    print(f"Success Variance vs. BCM | Pearson r: {p_corr_var:.4f}\n")
     
-    plt.figure(figsize=(8, 6), dpi=150)
-    plt.scatter(summary_df["bcm_score"], summary_df["success_rate"], color="darkcyan", s=50, edgecolors="black", zorder=3)
+    fig, ax = plt.subplots(figsize=(8, 6), dpi=150)
+    ax.scatter(summary_df["bcm_score"], summary_df["success_rate"], color="darkcyan", s=50, edgecolors="black", zorder=3)
     
     for i, txt in enumerate(summary_df["agent"]):
-        plt.annotate(txt, (summary_df["bcm_score"].iloc[i], summary_df["success_rate"].iloc[i]), 
+        ax.annotate(txt, (summary_df["bcm_score"].iloc[i], summary_df["success_rate"].iloc[i]), 
                      xytext=(5, 5), textcoords="offset points", fontsize=8)
                      
-    plt.title("System-Level Evaluation: Success Rate vs. Behavioral Consistency (BCM)")
-    plt.xlabel("Behavioral Consistency Metric (BCM)")
-    plt.ylabel("Task Success Rate")
-    plt.grid(True, linestyle="--", alpha=0.3)
+    ax.set_title("System-Level Evaluation: Success Rate vs. Behavioral Consistency (BCM)")
+    ax.set_xlabel("Behavioral Consistency Metric (BCM)")
+    ax.set_ylabel("Task Success Rate")
+    ax.grid(True, linestyle="--", alpha=0.3)
     
     plot_output_dir = "figures"
     if not os.path.exists(plot_output_dir):
         os.makedirs(plot_output_dir)
         
     plt.savefig(os.path.join(plot_output_dir, "exp1_inconsistency_scatter.png"), bbox_inches="tight")
-    plt.close()
-    
     summary_df.to_csv("tbf/models/agent_statistical_summary.csv", index=False)
+    
+    return fig
 
-if __name__ == "__main__":
-    run_day_8_analysis()
+run_day_8_analysis()
