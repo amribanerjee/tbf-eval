@@ -1,4 +1,3 @@
-%matplotlib inline
 import os
 import pandas as pd
 import numpy as np
@@ -6,7 +5,7 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
 
-def run_day_8_analysis():
+def exp1():
     data_path = "tbf/models/clustered_fingerprints.csv"
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Missing dataset at: {data_path}")
@@ -80,6 +79,7 @@ def run_day_8_analysis():
     plt.savefig(os.path.join(plot_output_dir, "exp1_inconsistency_scatter.png"), bbox_inches="tight")
     summary_df.to_csv("tbf/models/agent_statistical_summary.csv", index=False)
     
-    return fig
+    plt.show()
+    plt.close(fig)
 
-run_day_8_analysis()
+exp1()
