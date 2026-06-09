@@ -18,7 +18,6 @@ def run_unified_experiment_2_pipeline():
     raw_df["cluster_label"] = clustered_df["cluster_label"].values
     raw_df["resolved"] = clustered_df["resolved"].values
     
-    # Minimal-edit heuristic configuration from Part 4
     raw_df["flag_prong_A"] = (raw_df["step_velocity"] > 0.8) & (raw_df["file_edit_count"] < 0.05)
     raw_df["flag_prong_B"] = (raw_df["consecutive_repetition_max"] > 3) & (raw_df["error_flag_count"] > 0.4)
     raw_df["is_gaming"] = raw_df["flag_prong_A"] | raw_df["flag_prong_B"]
@@ -50,22 +49,34 @@ def run_unified_experiment_2_pipeline():
         print("No gaming trajectories isolated using the strict heuristic boundaries.")
         
     fig, ax = plt.subplots(figsize=(8, 6), dpi=150)
-    colors = raw_df["is_gaming"].map({True: "crimson", False: "lightgray"})
-    sizes = raw_df["is_gaming"].map({True: 35, False: 10})
-    alphas = raw_df["is_gaming"].map({True: 0.9, False: 0.4})
+    
+    non_gaming_df = raw_df[~raw_df["is_gaming"]]
+    gaming_df = raw_df[raw_df["is_gaming"]]
     
     ax.scatter(
-        raw_df["action_entropy"], 
-        raw_df["step_velocity"], 
-        c=colors, 
-        s=sizes, 
-        alpha=alphas,
-        edgecolors=raw_df["is_gaming"].map({True: "black", False: "none"}),
-        linewidths=0.5
+        non_gaming_df["action_entropy"], 
+        non_gaming_df["step_velocity"], 
+        c="lightgray", 
+        s=15, 
+        alpha=0.4,
+        label="Genuine Runs"
     )
+    
+    ax.scatter(
+        gaming_df["action_entropy"], 
+        gaming_df["step_velocity"], 
+        c="crimson", 
+        s=40, 
+        alpha=0.9,
+        edgecolors="black",
+        linewidths=0.6,
+        label="Flagged Anomalies (n=174)"
+    )
+    
     ax.set_title("Behavioral Failure Boundaries: Minimal-Edit Heuristic Isolation")
     ax.set_xlabel("Action Entropy")
     ax.set_ylabel("Step Velocity")
+    ax.legend(loc="lower right")
     ax.grid(True, linestyle="--", alpha=0.3)
     
     plot_dir = "figures"
@@ -73,6 +84,7 @@ def run_unified_experiment_2_pipeline():
         os.makedirs(plot_dir)
         
     plt.savefig(os.path.join(plot_dir, "exp2_anomaly_isolation.png"), bbox_inches="tight")
+    plt.show()
     plt.close(fig)
     
     raw_df.to_csv("tbf/models/anomaly_analysis_summary.csv", index=False)
