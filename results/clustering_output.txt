@@ -1,0 +1,62 @@
+k = 2 | WCSS (Inertia): 451.8793
+k = 3 | WCSS (Inertia): 355.6241
+k = 4 | WCSS (Inertia): 280.0302
+k = 5 | WCSS (Inertia): 214.0984
+k = 6 | WCSS (Inertia): 191.6269
+k = 7 | WCSS (Inertia): 170.2085
+k = 8 | WCSS (Inertia): 157.2852
+Cluster 0 | Size: 2096 | Success Rate: 0.0682 | Within-Cluster BCM: 0.8316
+  total_steps: -0.4359
+  mean_action_length: -0.0309
+  max_action_length: -0.0441
+  file_search_count: -0.0032
+  file_view_count: -0.0077
+  file_edit_count: -0.0031
+  test_execution_count: -0.0015
+  action_entropy: -0.0373
+  consecutive_repetition_max: 0.0000
+  unique_action_ratio: -0.0405
+  error_flag_count: 0.0013
+  step_velocity: -0.0475
+  swe-agent-llama-8b: 41.41%
+  swe-agent-llama-70b: 28.39%
+  swe-agent-llama-405b: 24.71%
+  claude-3-7-sonnet-20250219: 4.29%
+  claude-3-5-sonnet-20241022: 1.00%
+  gpt-4o-2024-08-06: 0.19%
+Cluster 1 | Size: 6351 | Success Rate: 0.3524 | Within-Cluster BCM: 0.4576
+  total_steps: 0.1345
+  mean_action_length: 0.0419
+  max_action_length: 0.0399
+  file_search_count: 0.0012
+  file_view_count: -0.0021
+  file_edit_count: -0.0022
+  test_execution_count: -0.0001
+  action_entropy: 0.0058
+  consecutive_repetition_max: 0.0000
+  unique_action_ratio: 0.0074
+  error_flag_count: -0.0030
+  step_velocity: 0.0106
+  claude-3-7-sonnet-20250219: 44.83%
+  swe-agent-llama-70b: 16.63%
+  claude-3-5-sonnet-20241022: 14.56%
+  swe-agent-llama-8b: 13.26%
+  swe-agent-llama-405b: 8.96%
+  gpt-4o-2024-08-06: 1.76%
+Cluster 2 | Size: 744 | Success Rate: 0.1747 | Within-Cluster BCM: 0.8676
+  total_steps: 0.1509
+  mean_action_length: -0.3236
+  max_action_length: -0.0587
+  file_search_count: -0.0038
+  file_view_count: -0.0030
+  file_edit_count: -0.0017
+  test_execution_count: 0.0073
+  action_entropy: 0.0106
+  consecutive_repetition_max: 0.0000
+  unique_action_ratio: 0.0362
+  error_flag_count: -0.0005
+  step_velocity: -0.0039
+  swe-agent-llama-70b: 46.91%
+  swe-agent-llama-8b: 38.98%
+  swe-agent-llama-405b: 13.98%
+  claude-3-7-sonnet-20250219: 0.13%
