@@ -1,0 +1,13 @@
+Agent System,Outcome,BCM Score,Sample Size
+claude-3-5-sonnet-20241022,Failure (0),0.7997,541
+claude-3-5-sonnet-20241022,Success (1),0.8787,405
+claude-3-7-sonnet-20250219,Failure (0),0.7337,1811
+claude-3-7-sonnet-20250219,Success (1),0.8203,1127
+gpt-4o-2024-08-06,Failure (0),0.788,87
+gpt-4o-2024-08-06,Success (1),0.9012,29
+swe-agent-llama-405b,Failure (0),0.2479,883
+swe-agent-llama-405b,Success (1),0.3356,308
+swe-agent-llama-70b,Failure (0),0.0652,1666
+swe-agent-llama-70b,Success (1),0.2552,334
+swe-agent-llama-8b,Failure (0),0.1549,1692
+swe-agent-llama-8b,Success (1),0.1866,308
