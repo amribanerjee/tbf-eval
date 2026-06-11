@@ -1,0 +1,7 @@
+=== 1. CLASS BALANCE ANALYSIS ===
+Failure (0): 6,680 instances (72.68%)
+Success (1): 2,511 instances (27.32%)
+
+=== 2. GENERATING FEATURE HISTOGRAMS ===
+
+Visualizations compiled successfully and saved to: tbf/figures/feature_histograms.png
