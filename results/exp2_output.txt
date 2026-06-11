@@ -1,0 +1,10 @@
+============================================================
+EXPERIMENT 2: UNIFIED BEHAVIORAL FAILURE DIAGNOSTICS
+============================================================
+Total Trajectories Flagged via Minimal-Edit Heuristic: 174
+Cluster 0: Fraction = 0.7759 (135 runs)
+  -> Resolved Successes: 3 (Success Rate: 0.0222)
+Cluster 1: Fraction = 0.2069 (36 runs)
+  -> Resolved Successes: 0 (Success Rate: 0.0000)
+Cluster 2: Fraction = 0.0172 (3 runs)
+  -> Resolved Successes: 0 (Success Rate: 0.0000)
