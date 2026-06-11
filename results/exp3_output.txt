@@ -1,0 +1,55 @@
+============================================================
+EXPERIMENT 3: TASK DIFFICULTY BINNING & PERFORMANCE
+============================================================
+
+Agent System: claude-3-7-sonnet-20250219
+  -> Easy Bin: Counts = 2047 | Success Rate = 0.3796 | BCM = 0.4120
+  -> Medium Bin: Counts = 690 | Success Rate = 0.4333 | BCM = 0.6161
+  -> Hard Bin: Counts = 201 | Success Rate = 0.2537 | BCM = 0.6513
+
+Agent System: swe-agent-llama-70b
+  -> Easy Bin: Counts = 185 | Success Rate = 0.1784 | BCM = 0.5589
+  -> Medium Bin: Counts = 935 | Success Rate = 0.2449 | BCM = 0.5984
+  -> Hard Bin: Counts = 880 | Success Rate = 0.0818 | BCM = 0.0000
+
+Agent System: claude-3-5-sonnet-20241022
+  -> Easy Bin: Counts = 699 | Success Rate = 0.4492 | BCM = 0.0000
+  -> Medium Bin: Counts = 211 | Success Rate = 0.3839 | BCM = 0.6494
+  -> Hard Bin: Counts = 36 | Success Rate = 0.2778 | BCM = 0.2545
+
+Agent System: swe-agent-llama-8b
+  -> Easy Bin: Counts = 151 | Success Rate = 0.1921 | BCM = 0.6758
+  -> Medium Bin: Counts = 668 | Success Rate = 0.3039 | BCM = 0.6132
+  -> Hard Bin: Counts = 1181 | Success Rate = 0.0644 | BCM = 0.0000
+
+Agent System: swe-agent-llama-405b
+  -> Easy Bin: Counts = 51 | Success Rate = 0.3922 | BCM = 0.5837
+  -> Medium Bin: Counts = 446 | Success Rate = 0.5314 | BCM = 0.6302
+  -> Hard Bin: Counts = 694 | Success Rate = 0.0735 | BCM = 0.0000
+
+Agent System: gpt-4o-2024-08-06
+  -> Easy Bin: Counts = 100 | Success Rate = 0.2700 | BCM = 0.0000
+  -> Medium Bin: Counts = 11 | Success Rate = 0.1818 | BCM = 0.0000
+  -> Hard Bin: Counts = 5 | Success Rate = 0.0000 | BCM = 0.1979
+
+============================================================
+BEHAVIORAL DRIFT ANALYSIS (JENSEN-SHANNON DIVERGENCE)
+============================================================
+
+Behavioral Drift for claude-3-7-sonnet-20250219:
+  -> Mean JS Divergence (Easy vs Hard): 0.7644
+
+Behavioral Drift for swe-agent-llama-70b:
+  -> Mean JS Divergence (Easy vs Hard): 0.5652
+
+Behavioral Drift for claude-3-5-sonnet-20241022:
+  -> Mean JS Divergence (Easy vs Hard): 0.6151
+
+Behavioral Drift for swe-agent-llama-8b:
+  -> Mean JS Divergence (Easy vs Hard): 0.5747
+
+Behavioral Drift for swe-agent-llama-405b:
+  -> Mean JS Divergence (Easy vs Hard): 0.5560
+
+Behavioral Drift for gpt-4o-2024-08-06:
+  -> Insufficient sample size in extreme difficulty bins to calculate drift.
