@@ -1,0 +1,33 @@
+============================================================
+RAW FEATURE MEANS PER CLUSTER (ACTUAL BEHAVIOR)
+============================================================
+cluster_label                         0            1            2
+total_steps                  104.101145    21.316958    21.673387
+mean_action_length          1175.802200   526.238147  2095.642569
+max_action_length           5595.252863  2401.064557  8226.935484
+file_search_count              0.063817     0.027579     0.063621
+file_view_count                0.327484     0.173910     0.364160
+file_edit_count                0.324152     0.145559     0.382470
+test_execution_count           0.041623     0.036585     0.036509
+action_entropy                 4.759934     2.683198     4.091424
+consecutive_repetition_max     1.091126     0.658951     1.000000
+unique_action_ratio            0.590762     0.559460     0.952797
+error_flag_count               0.206497     0.070335     0.196343
+step_velocity                  0.707756     0.364706     0.579258
+
+============================================================
+SHAP ATTRIBUTION MEANS PER CLUSTER (MODEL INTERPRETATION)
+============================================================
+cluster_label                      0         1         2
+total_steps                -0.435949  0.134535  0.150950
+mean_action_length         -0.030879  0.041881 -0.323556
+max_action_length          -0.044050  0.039912 -0.058681
+file_search_count          -0.003194  0.001195 -0.003778
+file_view_count            -0.007657 -0.002093 -0.002953
+file_edit_count            -0.003138 -0.002225 -0.001661
+test_execution_count       -0.001485 -0.000076  0.007283
+action_entropy             -0.037319  0.005809  0.010644
+consecutive_repetition_max  0.000000  0.000000  0.000000
+unique_action_ratio        -0.040493  0.007404  0.036213
+error_flag_count            0.001336 -0.003006 -0.000468
+step_velocity              -0.047535  0.010627 -0.003900
