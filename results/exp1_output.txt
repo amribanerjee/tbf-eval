@@ -1,26 +1,26 @@
 ============================================================
+RUNNING BCM BOOTSTRAP (1000 ITERATIONS)
+============================================================
+Agent: claude-3-7-sonnet-20250219   | N: 2938 | Mean: 0.7652 | 95% CI: [0.7444, 0.7837]
+Agent: swe-agent-llama-70b          | N: 2000 | Mean: 0.0655 | 95% CI: [0.0587, 0.0730]
+Agent: claude-3-5-sonnet-20241022   | N: 946 | Mean: 0.8335 | 95% CI: [0.8003, 0.8640]
+Agent: swe-agent-llama-8b           | N: 2000 | Mean: 0.0866 | 95% CI: [0.0733, 0.1025]
+Agent: swe-agent-llama-405b         | N: 1191 | Mean: 0.0711 | 95% CI: [0.0555, 0.0897]
+Agent: gpt-4o-2024-08-06            | N: 116 | Mean: 0.8162 | 95% CI: [0.7127, 0.9062]
+
+============================================================
 STATISTICAL CORRELATION COEFFICIENTS
 ============================================================
-Success Rate vs. BCM    | Pearson r: 0.7841 | Spearman rho: 0.6000
+Success Rate vs. BCM     | Pearson r: 0.7841 | Spearman rho: 0.6000
 Success Variance vs. BCM | Pearson r: 0.5907
 
 ============================================================
 REGENERATED FIXED-SEED AGGREGATES
 ============================================================
-                     agent  success_rate  bcm_score
-claude-3-7-sonnet-20250219      0.383594   0.765710
-       swe-agent-llama-70b      0.167000   0.064925
-claude-3-5-sonnet-20241022      0.428118   0.832711
-        swe-agent-llama-8b      0.154000   0.086195
-      swe-agent-llama-405b      0.258606   0.070852
-         gpt-4o-2024-08-06      0.250000   0.814310
-
-============================================================
-RUNNING BCM BOOTSTRAP (1000 ITERATIONS)
-============================================================
-Agent: claude-3-7-sonnet-20250219   | N: 2938 | Mean: 0.7652 | 95% CI: [0.7454, 0.7830]
-Agent: swe-agent-llama-70b          | N: 2000 | Mean: 0.0655 | 95% CI: [0.0583, 0.0733]
-Agent: claude-3-5-sonnet-20241022   | N: 946 | Mean: 0.8335 | 95% CI: [0.7983, 0.8652]
-Agent: swe-agent-llama-8b           | N: 2000 | Mean: 0.0866 | 95% CI: [0.0730, 0.1028]
-Agent: swe-agent-llama-405b         | N: 1191 | Mean: 0.0712 | 95% CI: [0.0547, 0.0910]
-Agent: gpt-4o-2024-08-06            | N: 116 | Mean: 0.8176 | 95% CI: [0.7126, 0.9055]
+                     agent  success_rate  bcm_score  bootstrap_mean  ci_lower  ci_upper
+claude-3-7-sonnet-20250219      0.383594   0.765710        0.765210  0.744395  0.783706
+       swe-agent-llama-70b      0.167000   0.064925        0.065470  0.058726  0.072959
+claude-3-5-sonnet-20241022      0.428118   0.832711        0.833506  0.800350  0.864010
+        swe-agent-llama-8b      0.154000   0.086195        0.086621  0.073253  0.102490
+      swe-agent-llama-405b      0.258606   0.070852        0.071106  0.055464  0.089678
+         gpt-4o-2024-08-06      0.250000   0.814310        0.816238  0.712665  0.906219
