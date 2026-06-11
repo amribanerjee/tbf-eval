@@ -1,0 +1,5 @@
+============================================================
+STATISTICAL CORRELATION COEFFICIENTS
+============================================================
+Success Rate vs. BCM    | Pearson r: 0.7841 | Spearman rho: 0.6000
+Success Variance vs. BCM | Pearson r: 0.5907
