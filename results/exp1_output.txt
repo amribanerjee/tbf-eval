@@ -3,3 +3,14 @@ STATISTICAL CORRELATION COEFFICIENTS
 ============================================================
 Success Rate vs. BCM    | Pearson r: 0.7841 | Spearman rho: 0.6000
 Success Variance vs. BCM | Pearson r: 0.5907
+
+============================================================
+REGENERATED FIXED-SEED AGGREGATES
+============================================================
+                     agent  success_rate  bcm_score
+claude-3-7-sonnet-20250219      0.383594   0.765710
+       swe-agent-llama-70b      0.167000   0.064925
+claude-3-5-sonnet-20241022      0.428118   0.832711
+        swe-agent-llama-8b      0.154000   0.086195
+      swe-agent-llama-405b      0.258606   0.070852
+         gpt-4o-2024-08-06      0.250000   0.814310
