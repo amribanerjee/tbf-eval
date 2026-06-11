@@ -1,0 +1,57 @@
+============================================================
+CONFOUNDER CHECK: TASK DIFFICULTY CONTROL
+============================================================
+Total Unique Tasks Evaluated on GPT-4o: 93
+Total Unique Tasks Evaluated on Llama-405b: 100
+Intersection (Shared Task Count) = 0
+
+============================================================
+1. DYNAMIC PAIRWISE SHARED-TASK COUNT MATRIX (6x6)
+============================================================
+                            claude-3-5-sonnet-20241022  claude-3-7-sonnet-20250219  gpt-4o-2024-08-06  swe-agent-llama-405b  swe-agent-llama-70b  swe-agent-llama-8b
+claude-3-5-sonnet-20241022                         676                         110                 66                     0                    0                   0
+claude-3-7-sonnet-20250219                         110                        2483                 17                     0                    0                   0
+gpt-4o-2024-08-06                                   66                          17                 93                     0                    0                   0
+swe-agent-llama-405b                                 0                           0                  0                   100                   63                  50
+swe-agent-llama-70b                                  0                           0                  0                    63                 1384                 195
+swe-agent-llama-8b                                   0                           0                  0                    50                  195                 515
+
+============================================================
+2. WITHIN-TASK BCM CONTROL (STRICT COGNITIVE CONTROL)
+============================================================
+Agent: claude-3-5-sonnet-20241022
+  -> Tasks with >=3 attempts: 60
+  -> Global Baseline BCM:    0.8327
+  -> Avg Within-Task BCM:    0.1262
+Agent: claude-3-7-sonnet-20250219
+  -> Tasks with >=3 attempts: 60
+  -> Global Baseline BCM:    0.7657
+  -> Avg Within-Task BCM:    0.0500
+Agent: gpt-4o-2024-08-06
+  -> Tasks with >=3 attempts: 4
+  -> Global Baseline BCM:    0.8143
+  -> Avg Within-Task BCM:    0.1416
+Agent: swe-agent-llama-405b
+  -> Tasks with >=3 attempts: 100
+  -> Global Baseline BCM:    0.0709
+  -> Avg Within-Task BCM:    0.1703
+Agent: swe-agent-llama-70b
+  -> Tasks with >=3 attempts: 132
+  -> Global Baseline BCM:    0.0649
+  -> Avg Within-Task BCM:    0.3998
+Agent: swe-agent-llama-8b
+  -> Tasks with >=3 attempts: 261
+  -> Global Baseline BCM:    0.0862
+  -> Avg Within-Task BCM:    0.2797
+
+============================================================
+3. REAL-TIME TRAJECTORY SOURCE SHEET INVENTORY
+============================================================
+Total entries parsed in active workspace matrix: 9191
+  -> claude-3-5-sonnet-20241022     | Trajectories: 946    | Tasks: 676
+  -> claude-3-7-sonnet-20250219     | Trajectories: 2938   | Tasks: 2483
+  -> gpt-4o-2024-08-06              | Trajectories: 116    | Tasks: 93
+  -> swe-agent-llama-405b           | Trajectories: 1191   | Tasks: 100
+  -> swe-agent-llama-70b            | Trajectories: 2000   | Tasks: 1384
+  -> swe-agent-llama-8b             | Trajectories: 2000   | Tasks: 515
+============================================================
