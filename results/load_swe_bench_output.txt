@@ -1,0 +1,18 @@
+Loading SWE-smith-trajectories database layer...
+Loading nebius/SWE-agent-trajectories database layer...
+Systems meeting minimum volume threshold (>= 500): ['swe-agent-llama-405b', 'swe-agent-llama-70b', 'swe-agent-llama-8b']
+Selected model systems for multi-agent profile: ['swe-agent-llama-405b', 'swe-agent-llama-70b', 'swe-agent-llama-8b']
+
+Merging subsets into final combined multi-agent dataframe...
+
+Final Multi-Agent System Count Profile:
+agent_system
+claude-3-7-sonnet-20250219    2938
+swe-agent-llama-70b           2000
+swe-agent-llama-8b            2000
+swe-agent-llama-405b          1191
+claude-3-5-sonnet-20241022     946
+gpt-4o-2024-08-06              116
+Name: count, dtype: int64
+
+Processing finished. Combined raw behavioral matrix stored at: tbf/data/raw_behavioral_dataframe.csv
