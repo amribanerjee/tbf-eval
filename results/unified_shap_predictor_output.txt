@@ -1,0 +1,71 @@
+Executing 5-fold cross-validation for SHAP extraction...
+Fold 1 processing completed.
+Fold 2 processing completed.
+Fold 3 processing completed.
+Fold 4 processing completed.
+Fold 5 processing completed.
+
+============================================================
+GLOBAL PERFORMANCE RESULTS (PREDICTOR)
+============================================================
+Mean ROC-AUC (5-Fold): 0.6900
+Optimized Threshold  : 0.370
+
+              precision    recall  f1-score   support
+
+ failure (0)     0.8260    0.6374    0.7196      6680
+ success (1)     0.3999    0.6428    0.4931      2511
+
+    accuracy                         0.6389      9191
+   macro avg     0.6129    0.6401    0.6063      9191
+weighted avg     0.7096    0.6389    0.6577      9191
+
+============================================================
+TOP FEATURE IMPORTANCES (NORMALIZED GAIN)
+============================================================
+  total_steps                          0.538210
+  mean_action_length                   0.116397
+  max_action_length                    0.091406
+  unique_action_ratio                  0.074560
+  test_execution_count                 0.049164
+  action_entropy                       0.045510
+  step_velocity                        0.033951
+  file_view_count                      0.017385
+  error_flag_count                     0.014316
+  file_search_count                    0.010250
+  file_edit_count                      0.008853
+  consecutive_repetition_max           0.000000
+
+============================================================
+FIRST 5 ROWS OF OUT-OF-FOLD SHAP MATRIX
+============================================================
+[[ 2.66569493e-01  8.50425877e-02  9.37073049e-02  6.25156302e-03
+  -1.45772081e-02 -2.96451662e-03 -2.11819584e-02  3.94840868e-02
+   0.00000000e+00 -2.42941670e-02 -1.04998827e-02  6.87775263e-02]
+ [ 8.58058639e-03 -9.97358932e-03 -9.06831137e-05 -1.10420057e-04
+   2.77031807e-04  8.90827584e-04 -4.01295132e-04  8.85560010e-04
+   0.00000000e+00  3.64561629e-03  2.88307911e-04  7.86039942e-05]
+ [ 7.87136355e-03  2.78307364e-03  3.08841326e-03  3.18922750e-04
+  -9.72851525e-05 -2.82816922e-04  1.43352761e-03  1.42741518e-03
+   0.00000000e+00  1.99041711e-03  6.10392807e-05  1.23891575e-04]
+ [ 9.47913744e-03  3.23032815e-03  6.97778511e-03  2.29935514e-04
+  -3.97365567e-04 -2.04349988e-04 -5.28889192e-04  1.39520171e-03
+   0.00000000e+00 -1.97074677e-03 -1.37920818e-04  6.44846297e-04]
+ [-1.82566420e-02  5.95927545e-04 -5.34352022e-03 -2.49720730e-03
+   3.49423712e-04 -1.09026766e-04 -1.36214140e-03 -3.24789319e-03
+   0.00000000e+00 -5.28610475e-03  6.43255277e-05 -1.07222977e-03]]
+
+Saved shap_fingerprints.csv successfully to tbf/models
+
+============================================================
+DESCRIPTIVE STATISTICS: CONSECUTIVE_REPETITION_MAX
+============================================================
+count    9191.000000
+mean        0.785116
+std         1.268459
+min         0.000000
+25%         0.000000
+50%         1.000000
+75%         1.000000
+max        61.000000
+Name: consecutive_repetition_max, dtype: float64
