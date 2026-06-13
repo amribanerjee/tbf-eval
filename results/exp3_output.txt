@@ -1,55 +1,35 @@
-============================================================
-EXPERIMENT 3: TASK DIFFICULTY BINNING & PERFORMANCE
-============================================================
+==================================================================
+EXPERIMENT 3: BEHAVIORAL DRIFT AND SUCCESS RATE BY DIFFICULTY BIN
+==================================================================
+Bin Thresholds: Easy (>0.3333), Medium (0.0 to 0.3333), Hard (<=0.0)
 
-Agent System: claude-3-7-sonnet-20250219
-  -> Easy Bin: Counts = 2047 | Success Rate = 0.3796 | BCM = 0.4120
-  -> Medium Bin: Counts = 690 | Success Rate = 0.4333 | BCM = 0.6161
-  -> Hard Bin: Counts = 201 | Success Rate = 0.2537 | BCM = 0.6513
-
-Agent System: swe-agent-llama-70b
-  -> Easy Bin: Counts = 185 | Success Rate = 0.1784 | BCM = 0.5589
-  -> Medium Bin: Counts = 935 | Success Rate = 0.2449 | BCM = 0.5984
-  -> Hard Bin: Counts = 880 | Success Rate = 0.0818 | BCM = 0.0000
-
-Agent System: claude-3-5-sonnet-20241022
-  -> Easy Bin: Counts = 699 | Success Rate = 0.4492 | BCM = 0.0000
-  -> Medium Bin: Counts = 211 | Success Rate = 0.3839 | BCM = 0.6494
-  -> Hard Bin: Counts = 36 | Success Rate = 0.2778 | BCM = 0.2545
-
-Agent System: swe-agent-llama-8b
-  -> Easy Bin: Counts = 151 | Success Rate = 0.1921 | BCM = 0.6758
-  -> Medium Bin: Counts = 668 | Success Rate = 0.3039 | BCM = 0.6132
-  -> Hard Bin: Counts = 1181 | Success Rate = 0.0644 | BCM = 0.0000
-
-Agent System: swe-agent-llama-405b
-  -> Easy Bin: Counts = 51 | Success Rate = 0.3922 | BCM = 0.5837
-  -> Medium Bin: Counts = 446 | Success Rate = 0.5314 | BCM = 0.6302
-  -> Hard Bin: Counts = 694 | Success Rate = 0.0735 | BCM = 0.0000
-
-Agent System: gpt-4o-2024-08-06
-  -> Easy Bin: Counts = 100 | Success Rate = 0.2700 | BCM = 0.0000
-  -> Medium Bin: Counts = 11 | Success Rate = 0.1818 | BCM = 0.0000
-  -> Hard Bin: Counts = 5 | Success Rate = 0.0000 | BCM = 0.1979
-
-============================================================
-BEHAVIORAL DRIFT ANALYSIS (JENSEN-SHANNON DIVERGENCE)
-============================================================
-
-Behavioral Drift for claude-3-7-sonnet-20250219:
-  -> Mean JS Divergence (Easy vs Hard): 0.7644
-
-Behavioral Drift for swe-agent-llama-70b:
-  -> Mean JS Divergence (Easy vs Hard): 0.5652
-
-Behavioral Drift for claude-3-5-sonnet-20241022:
-  -> Mean JS Divergence (Easy vs Hard): 0.6151
-
-Behavioral Drift for swe-agent-llama-8b:
-  -> Mean JS Divergence (Easy vs Hard): 0.5747
-
-Behavioral Drift for swe-agent-llama-405b:
-  -> Mean JS Divergence (Easy vs Hard): 0.5560
-
-Behavioral Drift for gpt-4o-2024-08-06:
-  -> Insufficient sample size in extreme difficulty bins to calculate drift.
+Agent: claude-3-5-sonnet-20241022
+  -> EASY   | Trajectories: 452   | BCM: 0.8708  | Success Rate: 0.8695
+  -> MEDIUM | Trajectories: 39    | BCM: 0.7893  | Success Rate: 0.3077
+  -> HARD   | Trajectories: 455   | BCM: 0.7996  | Success Rate: 0.0
+------------------------------------------------------------------
+Agent: claude-3-7-sonnet-20250219
+  -> EASY   | Trajectories: 1153  | BCM: 0.8241  | Success Rate: 0.967
+  -> MEDIUM | Trajectories: 33    | BCM: 0.618   | Success Rate: 0.3636
+  -> HARD   | Trajectories: 1752  | BCM: 0.7327  | Success Rate: 0.0
+------------------------------------------------------------------
+Agent: gpt-4o-2024-08-06
+  -> EASY   | Trajectories: 44    | BCM: 0.7778  | Success Rate: 0.6591
+  -> MEDIUM | Trajectories: 10    | BCM: 0.9312  | Success Rate: 0.0
+  -> HARD   | Trajectories: 62    | BCM: 0.821   | Success Rate: 0.0
+------------------------------------------------------------------
+Agent: swe-agent-llama-405b
+  -> EASY   | Trajectories: 407   | BCM: 0.0854  | Success Rate: 0.6314
+  -> MEDIUM | Trajectories: 241   | BCM: 0.1073  | Success Rate: 0.2116
+  -> HARD   | Trajectories: 543   | BCM: 0.293   | Success Rate: 0.0
+------------------------------------------------------------------
+Agent: swe-agent-llama-70b
+  -> EASY   | Trajectories: 384   | BCM: 0.2128  | Success Rate: 0.7891
+  -> MEDIUM | Trajectories: 100   | BCM: 0.1297  | Success Rate: 0.31
+  -> HARD   | Trajectories: 1516  | BCM: 0.0663  | Success Rate: 0.0
+------------------------------------------------------------------
+Agent: swe-agent-llama-8b
+  -> EASY   | Trajectories: 479   | BCM: 0.0451  | Success Rate: 0.5553
+  -> MEDIUM | Trajectories: 225   | BCM: 0.108   | Success Rate: 0.1867
+  -> HARD   | Trajectories: 1296  | BCM: 0.177   | Success Rate: 0.0
+------------------------------------------------------------------
