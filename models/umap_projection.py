@@ -10,14 +10,14 @@ def run_umap_pipeline():
         raise FileNotFoundError(f"Missing cluster dataset at: {clustered_path}. Run clustering.py first.")
 
     df = pd.read_csv(clustered_path)
-    
+
     feature_cols = [
         "total_steps", "mean_action_length", "max_action_length",
         "file_search_count", "file_view_count", "file_edit_count",
         "test_execution_count", "action_entropy", "consecutive_repetition_max",
         "unique_action_ratio", "error_flag_count", "step_velocity"
     ]
-    
+
     X = df[feature_cols].to_numpy()
     labels = df["cluster_label"].to_numpy()
 
@@ -27,32 +27,45 @@ def run_umap_pipeline():
         metric="euclidean",
         random_state=42
     )
-    
+
     X_umap = reducer.fit_transform(X)
-    
+
     np.save("tbf/models/umap_2d_projection.npy", X_umap)
 
-    plt.figure(figsize=(10, 8), dpi=150)
-    scatter = plt.scatter(
-        X_umap[:, 0], 
-        X_umap[:, 1], 
-        c=labels, 
-        cmap="viridis", 
-        s=4, 
-        alpha=0.6
-    )
-    plt.colorbar(scatter, label="K-Means Cluster Label")
-    plt.title("2D UMAP Projection of Agent Behavior SHAP Fingerprints")
-    plt.xlabel("UMAP Dimension 1")
-    plt.ylabel("UMAP Dimension 2")
-    plt.grid(True, linestyle="--", alpha=0.3)
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams["font.serif"] = ["Times New Roman"] + plt.rcParams["font.serif"]
+
+    fig, ax = plt.subplots(figsize=(7, 6))
     
+    scatter = ax.scatter(
+        X_umap[:, 0],
+        X_umap[:, 1],
+        c=labels,
+        cmap="viridis",
+        s=3,
+        alpha=0.5,
+        rasterized=True
+    )
+    
+    cbar = fig.colorbar(scatter, ax=ax)
+    cbar.set_label("K-Means Cluster Label", fontsize=11)
+    cbar.ax.tick_params(labelsize=9)
+    
+    ax.set_title("2D UMAP Projection of Agent Behavior SHAP Fingerprints", fontsize=12, pad=12)
+    ax.set_xlabel("UMAP Dimension 1", fontsize=11)
+    ax.set_ylabel("UMAP Dimension 2", fontsize=11)
+    
+    ax.tick_params(axis="both", labelsize=9)
+    ax.grid(True, linestyle="--", alpha=0.2)
+    
+    ax.set_axisbelow(True)
+
     plot_output_dir = "figures"
     if not os.path.exists(plot_output_dir):
         os.makedirs(plot_output_dir)
-        
-    plot_output_path = os.path.join(plot_output_dir, "umap_cluster_plot.png")
-    plt.savefig(plot_output_path, bbox_inches="tight")
+
+    plot_output_path = os.path.join(plot_output_dir, "umap_cluster_plot.pdf")
+    plt.savefig(plot_output_path, format="pdf", bbox_inches="tight", dpi=300)
     plt.close()
 
 if __name__ == "__main__":
