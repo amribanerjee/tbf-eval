@@ -1,11 +1,11 @@
 import os
-import numpy as np
 import pandas as pd
+import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
 
-def exp1():
+def run_evaluation_scatter():
     data_path = "tbf/models/clustered_fingerprints.csv"
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Missing dataset at: {data_path}")
@@ -57,64 +57,36 @@ def exp1():
     print("============================================================")
     print("STATISTICAL CORRELATION COEFFICIENTS")
     print("============================================================")
-    print(f"Success Rate vs. BCM    | Pearson r: {p_corr_bcm:.4f} | Spearman rho: {s_corr_bcm:.4f}")
-    print(f"Success Variance vs. BCM | Pearson r: {p_corr_var:.4f}\n")
+    print(f"Success Rate vs. Consistency   | Pearson r: {p_corr_bcm:.4f} | Spearman rho: {s_corr_bcm:.4f}")
+    print(f"Success Variance vs. Consistency | Pearson r: {p_corr_var:.4f}\n")
 
     plt.rcParams["font.family"] = "serif"
     plt.rcParams["font.serif"] = ["Times New Roman"] + plt.rcParams["font.serif"]
 
-    fig, ax = plt.subplots(figsize=(7, 5.5))
+    fig, ax = plt.subplots(figsize=(7, 5.5), dpi=300)
+    ax.scatter(summary_df["bcm_score"], summary_df["success_rate"], color="darkcyan", s=60, edgecolors="black", linewidths=0.75, zorder=3)
 
-    for i, row in summary_df.iterrows():
-        agent_name = row["agent"]
-        
-        ax.scatter(
-            row["bcm_score"], 
-            row["success_rate"], 
-            color="#4a4a4a", 
-            marker="o", 
-            s=55, 
-            edgecolors="black", 
-            linewidths=0.8, 
-            zorder=3
-        )
+    for i, txt in enumerate(summary_df["agent"]):
+        ax.annotate(txt, (summary_df["bcm_score"].iloc[i], summary_df["success_rate"].iloc[i]),
+                    xytext=(6, 6), textcoords="offset points", fontsize=9)
 
-        ax.annotate(
-            agent_name,
-            (row["bcm_score"], row["success_rate"]),
-            xytext=(7, 0),
-            textcoords="offset points",
-            fontsize=8.5,
-            weight="medium",
-            horizontalalignment="left",
-            verticalalignment="center"
-        )
-
-    ax.set_title("System-Level Evaluation: Success Rate vs. Behavioral Consistency (BCM)", fontsize=11, pad=12)
-    ax.set_xlabel("Behavioral Consistency Metric (BCM)", fontsize=10)
+    ax.set_title("System-Level Evaluation: Task Success Rate vs. Cross-Task Behavioral Consistency", fontsize=11, pad=12)
+    ax.set_xlabel("Cross-Task Behavioral Consistency Metric", fontsize=10)
     ax.set_ylabel("Task Success Rate", fontsize=10)
     
-    ax.xaxis.set_major_locator(plt.MultipleLocator(0.1))
-    ax.yaxis.set_major_locator(plt.MultipleLocator(0.05))
-
-    x_min, x_max = summary_df["bcm_score"].min(), summary_df["bcm_score"].max()
-    y_min, y_max = summary_df["success_rate"].min(), summary_df["success_rate"].max()
-    ax.set_xlim(x_min - 0.05, x_max + 0.15)
-    ax.set_ylim(y_min - 0.05, y_max + 0.05)
-
     ax.tick_params(axis="both", labelsize=9)
-    ax.grid(True, linestyle="--", alpha=0.2)
+    ax.grid(True, linestyle="--", alpha=0.25)
     ax.set_axisbelow(True)
 
     plot_output_dir = "figures"
     if not os.path.exists(plot_output_dir):
         os.makedirs(plot_output_dir)
 
-    plot_output_path = os.path.join(plot_output_dir, "exp1_inconsistency_scatter.pdf")
-    plt.savefig(plot_output_path, format="pdf", bbox_inches="tight", dpi=300)
+    plot_output_path = os.path.join(plot_output_dir, "cross_task_consistency_scatter.pdf")
+    plt.savefig(plot_output_path, format="pdf", bbox_inches="tight")
     summary_df.to_csv("tbf/models/agent_statistical_summary.csv", index=False)
 
-    plt.show()
     plt.close(fig)
 
-exp1()
+if __name__ == "__main__":
+    run_evaluation_scatter()
