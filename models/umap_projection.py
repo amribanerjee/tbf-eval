@@ -7,7 +7,7 @@ import umap
 def run_umap_pipeline():
     clustered_path = "tbf/models/clustered_fingerprints.csv"
     if not os.path.exists(clustered_path):
-        raise FileNotFoundError(f"Missing cluster dataset at: {clustered_path}. Run clustering.py first.")
+        raise FileNotFoundError(f"Missing cluster dataset at: {clustered_path}")
 
     df = pd.read_csv(clustered_path)
 
@@ -51,7 +51,7 @@ def run_umap_pipeline():
     cbar.set_label("K-Means Cluster Label", fontsize=11)
     cbar.ax.tick_params(labelsize=9)
     
-    ax.set_title("2D UMAP Projection of Agent Behavior SHAP Fingerprints", fontsize=12, pad=12)
+    ax.set_title("2D UMAP Projection of High-Dimensional Agent Action Trajectories", fontsize=12, pad=12)
     ax.set_xlabel("UMAP Dimension 1", fontsize=11)
     ax.set_ylabel("UMAP Dimension 2", fontsize=11)
     
